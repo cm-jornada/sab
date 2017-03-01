@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="simple.auth.boot.mapper.ResourceMapper">
+
+	<resultMap id="RoleResultMap" type="simple.auth.boot.dmo.Role">
+		<id column="ID" property="id" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />   
+		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />   
+		<result column="R_STATUS" property="status" jdbcType="VARCHAR" />  
+		<result column="R_CREATE_TIME" jdbcType="TIMESTAMP" property="createTime"
+		javaType="java.sql.Timestamp" />
+		<result column="R_UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime"
+		javaType="java.sql.Timestamp" /> 
+	</resultMap>
+	
+	<resultMap id="ResultMapWithRole" type="simple.auth.boot.dmo.Resource">
+		<id column="U_ID" property="id" jdbcType="VARCHAR" />
+		<result column="FATHER_ID" property="fatherId" jdbcType="VARCHAR" />
+		<result column="CODE" property="code" jdbcType="VARCHAR" />
+		<result column="TITLE" property="title" jdbcType="VARCHAR" />
+		<result column="URL" property="url" jdbcType="VARCHAR" />
+		<result column="ICON" property="icon" jdbcType="VARCHAR" />
+		<result column="LEVEL" property="level" jdbcType="VARCHAR" />
+		<result column="U_STATUS" property="status" jdbcType="VARCHAR" />
+		<result column="U_CREATE_TIME" jdbcType="TIMESTAMP" property="createTime"
+			javaType="java.sql.Timestamp" />
+		<result column="U_UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime"
+			javaType="java.sql.Timestamp" />
+			
+		<collection property="roleList" resultMap="RoleResultMap"/>    
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		rs.ID U_ID,rs.FATHER_ID,rs.CODE,rs.TITLE,rs.URL,rs.ICON,rs.LEVEL,rs.STATUS U_STATUS,rs.CREATE_TIME U_CREATE_TIME,rs.UPDATE_TIME U_UPDATE_TIME,
+		r.ID R_ID,r.NAME,r.DESCRIPTION,r.STATUS R_STATUS,r.CREATE_TIME R_CREATE_TIME,r.UPDATE_TIME R_UPDATE_TIME
+	</sql>
+
+	<select id="loadAll"  resultMap="ResultMapWithRole" parameterType="simple.auth.boot.dmo.Resource">
+		select 
+		<include refid="Base_Column_List" />
+		from TB_RESOURCE rs,TB_ROLE r,TB_ROLE_RESOURCE rr WHERE rs.ID=rr.RESOURCE_ID AND rr.ROLE_ID=r.ID and r.STATUS='1' and rr.STATUS='1' and rs.STATUS='1';
+	</select>
+
+</mapper>

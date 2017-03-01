@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="simple.auth.boot.mapper.UserMapper">
+
+	<resultMap id="ResultMap" type="simple.auth.boot.dmo.User">
+		<id column="ID" property="id" jdbcType="VARCHAR" />
+		<result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+		<result column="PASSWORD" property="password" jdbcType="VARCHAR" />
+		<result column="PHONE" property="phone" jdbcType="VARCHAR" />
+		<result column="EMAIL" property="email" jdbcType="VARCHAR" />
+		<result column="EXTEND_FIELD" property="extendField" jdbcType="VARCHAR" />
+		<result column="ENABLE" property="enable" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime"
+			javaType="java.sql.Timestamp" />
+		<result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime"
+			javaType="java.sql.Timestamp" />
+	</resultMap>
+
+	<resultMap id="RoleResultMap" type="simple.auth.boot.dmo.Role">
+		<id column="ID" property="id" jdbcType="VARCHAR" />
+		<result column="NAME" property="name" jdbcType="VARCHAR" />   
+		<result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />   
+		<result column="STATUS" property="status" jdbcType="VARCHAR" />  
+		<result column="R_CREATE_TIME" jdbcType="TIMESTAMP" property="createTime"
+		javaType="java.sql.Timestamp" />
+		<result column="R_UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime"
+		javaType="java.sql.Timestamp" /> 
+	</resultMap>
+	
+	<resultMap id="ResultMapWithRole" type="simple.auth.boot.dmo.User">
+		<id column="ID" property="id" jdbcType="VARCHAR" />
+		<result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+		<result column="PASSWORD" property="password" jdbcType="VARCHAR" />
+		<result column="PHONE" property="phone" jdbcType="VARCHAR" />
+		<result column="EMAIL" property="email" jdbcType="VARCHAR" />
+		<result column="EXTEND_FIELD" property="extendField" jdbcType="VARCHAR" />
+		<result column="ENABLE" property="enable" jdbcType="VARCHAR" />
+		<result column="U_CREATE_TIME" jdbcType="TIMESTAMP" property="createTime"
+			javaType="java.sql.Timestamp" />
+		<result column="U_UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime"
+			javaType="java.sql.Timestamp" />
+			
+		<collection property="roleList" resultMap="RoleResultMap"/>    
+	</resultMap>
+	
+	<sql id="Base_Column_List">
+		u.ID U_ID,u.USER_NAME,u.PASSWORD,u.PHONE,u.EMAIL,u.EXTEND_FIELD,u.ENABLE,u.CREATE_TIME U_CREATE_TIME,u.UPDATE_TIME U_UPDATE_TIME,
+		r.ID R_ID,r.NAME,r.DESCRIPTION,r.STATUS,r.CREATE_TIME R_CREATE_TIME,r.UPDATE_TIME R_UPDATE_TIME
+	</sql>
+	
+	<insert id="insert" parameterType="simple.auth.boot.dmo.User"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into TB_USER
+		(USER_NAME,PASSWORD,PHONE,EMAIL,EXTEND_FIELD)
+		values(#{userName},#{password},#{phone},#{email},#{extendField})
+	</insert>
+
+	<select id="find"  resultMap="ResultMap" parameterType="simple.auth.boot.dmo.User">
+		select * from TB_USER
+		<where>
+			<if test="userName != null and userName != ''">
+   				 <![CDATA[And USER_NAME =#{userName} ]]>
+			</if>
+			<if test="phone != null and phone != ''">
+   				 <![CDATA[And PHONE =#{phone} ]]>
+			</if>
+			<if test="enable != null and enable != ''">
+   				 <![CDATA[And ENABLE =#{enable} ]]>
+			</if>
+		</where>
+	</select>
+
+	<select id="findById" parameterType="java.lang.String" resultMap="ResultMapWithRole">
+		select 
+		<include refid="Base_Column_List" />
+		from TB_USER u,TB_USER_ROLE ur,TB_ROLE r
+		WHERE u.ID=ur.USER_ID and ur.ROLE_ID = r.ID
+		and ID=#{id}
+	</select>
+
+	<select id="findByUserName" parameterType="java.lang.String" resultMap="ResultMapWithRole">
+		select 
+		<include refid="Base_Column_List" />
+		from TB_USER u,TB_USER_ROLE ur,TB_ROLE r
+		WHERE u.ID=ur.USER_ID and ur.ROLE_ID = r.ID
+		and USER_NAME=#{userName} and ENABLE='1'
+	</select>
+
+	<delete id="deleteById" parameterType="java.lang.String">
+		delete from TB_USER where id=#{id}
+	</delete>
+
+	<update id="update" parameterType="simple.auth.boot.dmo.User">
+		update TB_USER 
+		<set>
+			<if test="password != null and password != '' ">
+				PASSWORD = #{password},
+			</if>
+			<if test="phone != null and phone != '' ">
+				PHONE = #{phone},
+			</if>
+			<if test="email != null and email != '' ">
+				EMAIL = #{email},
+			</if>
+			<if test="enable != null and enable != '' ">
+				ENABLE = #{enable},
+			</if>
+			<if test="extendField != null and extendField != '' ">
+				EXTEND_FIELD = #{extendField},
+			</if>
+			UPDATE_TIME = NOW()
+		</set>
+		where id=#{id}
+	</update>
+</mapper>
